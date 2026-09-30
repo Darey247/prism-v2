@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "User profile and settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "username": { "type": "string" },
+        "displayName": { "type": "string" },
+        "currency": { "type": "string" },
+        "theme": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "usernames": {
+      "title": "Username",
+      "description": "Unique username registry index mapping unique username to user UID",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "displayName": { "type": "string" },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username"]
+    },
+    "transactions": {
+      "title": "Transaction",
+      "description": "Crypto transaction history record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "txHash": { "type": "string" },
+        "type": { "type": "string", "enum": ["send", "receive", "swap", "deposit", "withdraw"] },
+        "asset": { "type": "string" },
+        "amount": { "type": "number" },
+        "usdValue": { "type": "number" },
+        "fromAddress": { "type": "string" },
+        "toAddress": { "type": "string" },
+        "network": { "type": "string" },
+        "fee": { "type": "number" },
+        "status": { "type": "string", "enum": ["completed", "pending", "failed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "txHash", "type", "asset", "amount", "status"]
+    },
+    "addressBook": {
+      "title": "AddressBookEntry",
+      "description": "Saved recipient address",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "network": { "type": "string" },
+        "symbol": { "type": "string" }
+      },
+      "required": ["userId", "name", "address", "network"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/users" },
+      "description": "User profile collection"
+    },
+    "/usernames/{username}": {
+      "schema": { "$ref": "#/entities/usernames" },
+      "description": "Unique username index collection enforcing 1-to-1 unique username claim"
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/transactions" },
+      "description": "User transaction records"
+    },
+    "/addressBook/{contactId}": {
+      "schema": { "$ref": "#/entities/addressBook" },
+      "description": "User saved contacts"
+    }
+  }
+}

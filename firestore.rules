@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow create: if isOwner(userId) && incoming().uid == request.auth.uid;
+      allow update: if isOwner(userId) && incoming().uid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // Unique Username Registry (1 unique username per user, exclusive claim)
+    match /usernames/{username} {
+      // Allow read so users can check availability and verify P2P transfer recipient handles
+      allow get: if true;
+      allow list: if isSignedIn();
+      // Only the authenticated user can claim their unique username
+      allow create: if isSignedIn() && incoming().uid == request.auth.uid;
+      allow update: if false; // Once claimed, cannot be reassigned or hijacked by anyone else
+      allow delete: if isSignedIn() && existing().uid == request.auth.uid;
+    }
+
+    // Transactions
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    // Address book
+    match /addressBook/{contactId} {
+      allow get: if isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+  }
+}

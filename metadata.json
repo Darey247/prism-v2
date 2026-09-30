@@ -1,0 +1,6 @@
+{
+  "name": "Prism Wallet",
+  "description": "Next-generation crypto wallet and portfolio dashboard with liquid glass iOS interface, instant Prism-to-Prism username transfers, multi-asset tracking, and multi-chain execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
